@@ -56,6 +56,7 @@ iam_policy:
     - 'projects/{{project}}/locations/{{location}}/features/{{name}}'
     - '{{name}}'
 custom_code:
+  pre_delete: 'templates/terraform/pre_delete/philip.go.tmpl'
 # Skip sweeper gen since this is a child resource.
 exclude_sweeper: true
 legacy_long_form_project: true

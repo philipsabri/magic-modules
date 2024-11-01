@@ -1,0 +1,31 @@
+// Check if the feature is Policy Controller
+if featureType, ok := d.GetOk("spec.0.policycontroller"); ok && featureType != nil {
+    log.Printf("[DEBUG] Feature is Policy Controller, performing additional cleanup if necessary")
+    // Get all clusters with policy controller enabled
+    clustersURL, err := tpgresource.ReplaceVarsForId(d, config, "{{"{{"}}GKEHub2BasePath{{"}}"}}projects/{{"{{"}}project{{"}}"}}/locations/-/memberships")
+    if err != nil {
+        return err
+    }
+
+    clustersRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+        Config:    config,
+        Method:    "GET",
+        Project:   billingProject,
+        RawURL:    clustersURL,
+        UserAgent: userAgent,
+        Headers:   headers,
+    })
+    if err != nil {
+        return fmt.Errorf("Error fetching clusters: %s", err)
+    }
+
+    clusters := clustersRes["resources"].([]interface{})
+    for _, cluster := range clusters {
+        clusterMap := cluster.(map[string]interface{})
+        if policyController, ok := clusterMap["policycontroller"]; ok && policyController != nil {
+            // Perform additional cleanup if necessary
+            log.Printf("[DEBUG] Cluster %s has Policy Controller enabled", clusterMap["name"])
+            // Add your cleanup logic here
+        }
+    }
+}
